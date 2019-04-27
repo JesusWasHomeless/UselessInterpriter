@@ -402,6 +402,18 @@ public class Parser {
 	
 //REVERSE POLISH NOTATION---------------------------------
 //--------------------------------------------------------
+/*Надоело по-английски писать :D В общем, логика такова, что мы создаём лист, в котором будет полиз, 
+и лист связанный с очередью, чекаем его на ключевые слова: если их нет, то используется обычный полиз (PolizExpr),
+иначе в зависимости от ключевого слова используется метод, работающий специально под тот или иной полиз.
+На вход подаётся код, написанный в файле test.txt. Код разбивается на токены и проверяется в парсере, после этого идёт лишь
+разрешение на работу полиза. При циклах используются переходы по лжи <number> !F и безусловные переходы <number> !. При
+обычном полизе выражение обращается в польскую инверсную запись (как ни странно, в полиз :D). В стек помещаются знаки бинарных
+операций.
+Пример работы полиза:
+Вход: A = A+3*(2+4*(3+2/1));
+Выход: A, A, 3, 2, 4, 3, 2, 1, /, +, *, +, *, +, = 
+Вход: WHILE(A>Q) START Q = Z+1; END IF(X>C)START D = 6; END FOR ( A=5;B<4;C=C+1) START D = 5; END
+Выход: A, Q, >, 12, !F, Q, Z, 1, +, =, 0, !, X, C, >, 20, !F, D, 6, =, A, 5, =, B, 4, <, C, C, 1, +, =, 38, !F, D, 5, =, 20, ! */
 private static LinkedList<Token> poliz = new LinkedList<>();
 
     public static LinkedList<Token> Poliz(Queue<Token> input) {
@@ -609,7 +621,6 @@ private static LinkedList<Token> poliz = new LinkedList<>();
                 
             }
         }
-        //p+=3;
         return p;
     }
     
@@ -635,7 +646,6 @@ private static LinkedList<Token> poliz = new LinkedList<>();
                 
             }
         }
-        //p+=3;
         return p1;
     }
     private static int p2(int size, Queue<Token> tokens) {
@@ -660,7 +670,6 @@ private static LinkedList<Token> poliz = new LinkedList<>();
                 
             }
         }
-        //p2+=3;
         return p2;
     }
 
