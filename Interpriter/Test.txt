@@ -1,0 +1,4 @@
+WHILE(A>Q) START Q = Z+1; END
+IF(X>C)START D = 6; END
+FOR ( A=5;B<4;C=C+1) START D = 5; END
+A = A+3*(2+4*(3+2/1));
