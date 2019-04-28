@@ -417,8 +417,11 @@ public class Parser {
 private static LinkedList<Token> poliz = new LinkedList<>();
 
     public static LinkedList<Token> Poliz(Queue<Token> input) {
+
         while (!input.isEmpty()) {
+        	
             Token token = input.peek();
+
 			if (token.type != LexGrammar.WHILE_W){
                 PolizExpr(input);
             }
@@ -438,17 +441,20 @@ private static LinkedList<Token> poliz = new LinkedList<>();
 			else if(token.type == LexGrammar.FOR_W){
 				PolizFor(input);
 			}
-            }
+            
+        }
         int i = -1;
         for(Token t: poliz){
         	i++;
         	System.out.println(i+ " " + t);
         }
+		
         System.out.println("Your poliz is:");
         return poliz;
     }
 
     private static void PolizFor(Queue<Token> input) {
+    	
         Queue<Token> boolExpr = new LinkedList<>();
         input.poll();
         Token token = input.poll();
@@ -458,7 +464,7 @@ private static LinkedList<Token> poliz = new LinkedList<>();
             token = input.poll();
         }
         PolizExpr(boolExpr);
-        poliz.add(new Token(LexGrammar.GOTO_POS, Integer.toString(p2(poliz.size()-1, input))));
+        poliz.add(new Token(LexGrammar.GOTO_POS, Integer.toString(p2(poliz.size()+2, input))));
         poliz.add(new Token(LexGrammar.GOTO, "!F"));
 
         Queue<Token> expr = new LinkedList<>();
@@ -473,7 +479,7 @@ private static LinkedList<Token> poliz = new LinkedList<>();
             token = input.poll();
         }
         PolizExpr(expr);
-        poliz.add(new Token(LexGrammar.GOTO_POS , Integer.toString(index)));
+        poliz.add(new Token(LexGrammar.GOTO_POS , Integer.toString(index+3)));
         poliz.add(new Token(LexGrammar.GOTO, "!"));
 
     }
@@ -489,7 +495,7 @@ private static LinkedList<Token> poliz = new LinkedList<>();
         }
 
         PolizExpr(boolExpr);
-        poliz.add(new Token(LexGrammar.GOTO_POS, Integer.toString(p(poliz.size(), input))));
+        poliz.add(new Token(LexGrammar.GOTO_POS, Integer.toString(p(poliz.size()+3, input))));
         poliz.add(new Token(LexGrammar.GOTO, "!F"));
 
         Queue<Token> expr = new LinkedList<>();
@@ -517,11 +523,11 @@ private static LinkedList<Token> poliz = new LinkedList<>();
             boolExpr.add(token);
             token = input.poll();
         }
-
         PolizExpr(boolExpr);
-        poliz.add(new Token(LexGrammar.GOTO_POS, Integer.toString(p1(poliz.size()-2, input))));
+        
+        poliz.add(new Token(LexGrammar.GOTO_POS, Integer.toString(p1(poliz.size()+1, input))));
+       
         poliz.add(new Token(LexGrammar.GOTO, "!F"));
-
         Queue<Token> expr = new LinkedList<>();
         token = input.poll();
         while (token.type != LexGrammar.END_W) {
@@ -547,11 +553,11 @@ private static LinkedList<Token> poliz = new LinkedList<>();
             }
 
             token = input.poll();
-
-            if (token.type == LexGrammar.VAR || token.type == LexGrammar.NUMBER) {
+            	
+            if ((token.type == LexGrammar.VAR || token.type == LexGrammar.NUMBER)) {
                 poliz.add(token);
             }
-
+            
             if (token.type == LexGrammar.OP_MUL ||
             	token.type == LexGrammar.OP_DIV ||
             	token.type == LexGrammar.OP_PLUS ||
@@ -587,7 +593,7 @@ private static LinkedList<Token> poliz = new LinkedList<>();
                 }
             }
 
-            if (token.type == LexGrammar.SEMICOLON) {
+            if ((token.type == LexGrammar.SEMICOLON)) {
                 if (!stack.empty()) {
                     poliz.add(stack.pop());
                 }
@@ -610,8 +616,9 @@ private static LinkedList<Token> poliz = new LinkedList<>();
                 i++;
                 p--;
             }
-            //p++;
-            
+            if(token1.type == LexGrammar.SPACE){
+            	p--;
+            }
             if (token1.type == LexGrammar.SEMICOLON) {
                 i--;
             }
@@ -636,7 +643,9 @@ private static LinkedList<Token> poliz = new LinkedList<>();
             	i++;
             	p1--;
             }
-            
+            if(token1.type == LexGrammar.SPACE){
+            	p1--;
+            }
             if (token1.type == LexGrammar.SEMICOLON) {
                 i--;
             }
@@ -660,7 +669,9 @@ private static LinkedList<Token> poliz = new LinkedList<>();
             	i++;
             	p2--;
             }
-            
+        	if(token1.type == LexGrammar.SPACE){
+            	p2--;
+            }
             if (token1.type == LexGrammar.SEMICOLON) {
             	i--;
             }
