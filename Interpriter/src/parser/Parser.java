@@ -464,7 +464,7 @@ private static LinkedList<Token> poliz = new LinkedList<>();
             token = input.poll();
         }
         PolizExpr(boolExpr);
-        poliz.add(new Token(LexGrammar.GOTO_POS, Integer.toString(p2(poliz.size()+2, input))));
+        poliz.add(new Token(LexGrammar.GOTO_POS, Integer.toString(p2(poliz.size()+3, input))));
         poliz.add(new Token(LexGrammar.GOTO, "!F"));
 
         Queue<Token> expr = new LinkedList<>();
@@ -625,7 +625,9 @@ private static LinkedList<Token> poliz = new LinkedList<>();
             token1 = tokens1.poll();
             if (token1.type != LexGrammar.PARENTHESIS_OP) {
                 p++;
-                
+            }
+            if (token1.type == LexGrammar.PARENTHESIS_OP) {
+                p--;
             }
         }
         return p;
@@ -652,7 +654,9 @@ private static LinkedList<Token> poliz = new LinkedList<>();
             token1 = tokens1.poll();
             if (token1.type != LexGrammar.PARENTHESIS_OP) {
                 p1++;
-                
+            }
+            if (token1.type == LexGrammar.PARENTHESIS_OP) {
+                p1--;
             }
         }
         return p1;
@@ -679,6 +683,9 @@ private static LinkedList<Token> poliz = new LinkedList<>();
             if (token1.type != LexGrammar.PARENTHESIS_OP) {
                 p2++;
                 
+            }
+            if (token1.type == LexGrammar.PARENTHESIS_OP) {
+                p2--;
             }
         }
         return p2;
