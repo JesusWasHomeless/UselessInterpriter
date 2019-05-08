@@ -9,249 +9,260 @@ import lexer.LexGrammar;
 import lexer.Token;
 
 public class Parser {
-	
-	private static List<Token> tokens = new LinkedList<>();
+	public static List<Token> tokens = new LinkedList<>();
 	private int pos = 0;
-	
+
 	public Parser(List<Token> tokens){
 		for(Token token : tokens){
 			if(token.getLex()!= LexGrammar.SPACE){
 				Parser.tokens.add(token);
 			}
 		}
-		
+
 		if(lang()){
+
 			System.out.println("Parser skushal tvoi kod!");
 		}
 		else{
 			System.err.println("Parser vyplyunul tvoi kod! Check syntax!");
 			System.exit(-1);
-			}
-		
- 	}
+		}
+	}
 
-//LANG DESCRIPTION----------------------------------------	IF EXPR THEN OK
+	//LANG DESCRIPTION----------------------------------------	IF EXPR THEN OK
 	private boolean lang(){
 		while(pos < Parser.tokens.size()){
 			if(!expr()){
 				return false;
-			}	
+			}
 		}
 		return true;
 	}
 //--------------------------------------------------------
-	 
-//EXPR DESCRIPTION---------------------------------------- IF ONE OF NEXT EXPRS THEN OK ELSE SEARCH AGAIN USING BACK()	
-	private boolean expr() {
-        if (assignment()){
-        	return true;
-        }
-        else
-        	back();
-        
-       if(if_expr()){
-    	   return true;           
-        }
-        else
-        	back();
-       
-    	if(while_cycle()){
-    		return true;
-    	}
-        else
-        	back();
-        
-        if(for_cycle()){
-    		return true;
-    	} 
-        else
-        	back();
-        return false;
-    }
-//--------------------------------------------------------	
-	
-	
-//ASSIGNMENT---------------------------------------------- IF ASSIGNMENT IS SUCCESSFUL AND THERE'S A BORDER OF THAT METHOD (;) THEN OK
-	private boolean assignment() {
-        boolean assignment = false;
 
-        if (assign_op()) {
-            if (NextLexGetter() == LexGrammar.SEMICOLON) {
-                assignment = true;
-            }
-            else back();
-        }
-        return assignment;
-    }
+	//EXPR DESCRIPTION---------------------------------------- IF ONE OF NEXT EXPRS THEN OK ELSE SEARCH AGAIN USING BACK()
+	private boolean expr() {
+		if (assignment()){
+			return true;
+		}
+		else
+			back();
+
+		if(if_expr()){
+			return true;
+		}
+		else
+			back();
+		if(while_cycle()){
+			return true;
+		}
+		else
+			back();
+
+		if(for_cycle()){
+			return true;
+		}
+		else
+			back();
+		return false;
+	}
 //--------------------------------------------------------
-	
-//IF EXPR-------------------------------------------------	IF CODE LOOKS LIKE IF(a==b) START a = a + b; END  THEN OK
+
+
+	//ASSIGNMENT---------------------------------------------- IF ASSIGNMENT IS SUCCESSFUL AND THERE'S A BORDER OF THAT METHOD (;) THEN OK
+	private boolean assignment() {
+		boolean assignment = false;
+
+		if (assign_op()) {
+			if (NextLexGetter() == LexGrammar.SEMICOLON) {
+				assignment = true;
+			}
+			else back();
+		}
+		return assignment;
+	}
+//--------------------------------------------------------
+
+	//IF EXPR-------------------------------------------------	IF CODE LOOKS LIKE IF(a==b) START a = a + b; END  THEN OK
 	private boolean if_expr(){
 		boolean if_expr = false;
 		if(NextLexGetter() == LexGrammar.IF_W){
 			if(log_expr()){
 				if(body()){
-					if_expr = true;
+					if(else_expr()){
+						if(body()){
+							if_expr =  true;
+						}
+					}else{back(); if_expr = true;}
+
 				}
 			}
-			else back();
 		}
 		//else back();
 		return if_expr;
 	}
-//--------------------------------------------------------
 
-//WHILE--------------------------------------------------- THE SAME STORY WITH WHILE CYCLE
-	private boolean while_cycle(){
-			boolean while_cycle = false;
-			if(NextLexGetter()==LexGrammar.WHILE_W){
-				if(log_expr()){
-					if(body()){
-						while_cycle = true;
-						
-					}
-				}
+	private boolean else_expr(){
+		boolean else_expr = false;
+		if(tokens.size() != pos){
+		if(NextLexGetter() == LexGrammar.ELSE_W){
+				else_expr = true;
 			}
-			return while_cycle;	
-	}
-		
-//FOR-----------------------------------------------------	IF CODE LOOKS LIKE FOR(a=4; b<10; a = a + 1) START a = 22*10; END THEN OK
-		private boolean for_cycle(){
-			boolean for_cycle = false;
-			if(NextLexGetter()==LexGrammar.FOR_W){
-				if(for_body()){
-					if(body()){
-						for_cycle = true;
-					}
-				}
-			}
-			return for_cycle;
 		}
+		return else_expr;
+	}
 //--------------------------------------------------------
 
-		
+	//WHILE--------------------------------------------------- THE SAME STORY WITH WHILE CYCLE
+	private boolean while_cycle(){
+		boolean while_cycle = false;
+		if(NextLexGetter()==LexGrammar.WHILE_W){
+			if(log_expr()){
+				if(body()){
+					while_cycle = true;
+
+				}
+			}
+		}
+		return while_cycle;
+	}
+
+	//FOR-----------------------------------------------------	IF CODE LOOKS LIKE FOR(a=4; b<10; a = a + 1) START a = 22*10; END THEN OK
+	private boolean for_cycle(){
+		boolean for_cycle = false;
+		if(NextLexGetter()==LexGrammar.FOR_W){
+			if(for_body()){
+				if(body()){
+					for_cycle = true;
+				}
+			}
+		}
+		return for_cycle;
+	}
+//--------------------------------------------------------
+
+
 //ASSIGNMENT DESCRIPTION================================== THAT'S HOW THE ASSIGNMENT WORKS
 
-//ASSIGN_OP-----------------------------------------------		
-    private boolean assign_op() {
-        boolean assign_op = false;
+	//ASSIGN_OP-----------------------------------------------
+	private boolean assign_op() {
+		boolean assign_op = false;
 
-        if (NextLexGetter() == LexGrammar.VAR) {
-            if (NextLexGetter() == LexGrammar.ASSIGN_OP) {
-                if (stmt()) {
-                    assign_op = true;
-                }
-            }
-        }
-        return assign_op;
-    }
+		if (NextLexGetter() == LexGrammar.VAR) {
+			if (NextLexGetter() == LexGrammar.ASSIGN_OP) {
+				if (stmt()) {
+					assign_op = true;
+				}
+			}
+		}
+		return assign_op;
+	}
 
 //--------------------------------------------------------
 
-//STMT----------------------------------------------------  
-    private boolean stmt() {
-        boolean stmt = false;
+	//STMT----------------------------------------------------
+	private boolean stmt() {
+		boolean stmt = false;
 
-            if(val()) {
-            	while(OP()){	
-            	}
-            	stmt = true;
-            }
-           
-            
-        return stmt;
-    }
-//--------------------------------------------------------    
+		if(val()) {
+			while (OP()){}
+			stmt = true;
+		}
 
-//VAL-----------------------------------------------------
-    private boolean val() {
-        boolean val = false;
 
-        if (NextLexGetter() == LexGrammar.VAR) {
-            val = true;
-        } 
-        
-        else back();
-        
-        if (NextLexGetter() == LexGrammar.NUMBER) {
-            val = true;
-        }
-        
-        else back();
-        
-        if (parenthesstmt()){
-       	val = true;
-        }
-        else back();
-        
-        return val;
-    }
-//--------------------------------------------------------
-    
-//OP(+-*/)------------------------------------------------    
-    private boolean OP() {
-        boolean OP = false;
-        
-        		if (NextLexGetter() == LexGrammar.OP_PLUS) {
-        		//	stack.push("+");
-        			if (val()) {
-        				OP = true;
-        			}
-        			else back();
-        		}
-        		else back();
-        		
-        		if (NextLexGetter() == LexGrammar.OP_MINUS) {
-        	//		stack.push("-");
-        			if (val()) {
-        				OP = true;
-        			}
-        			else back();
-        		}
-        		else back();
-        		
-        		if (NextLexGetter() == LexGrammar.OP_MUL) {
-        		//	stack.push("*");
-        			if (val()) {
-        				OP = true;
-        			}
-        			else back();
-        		}
-        		else back();
-        		
-        		if (NextLexGetter() == LexGrammar.OP_DIV) {
-        		//	stack.push("/");
-        			if (val()) {
-        				OP = true;
-        			}
-        			else back();
-        		}
-        		else back();
-        return OP;
-    }
+		return stmt;
+	}
 //--------------------------------------------------------
 
-//PARENTHESIS(INFINITE MODULE)----------------------------   
-    private boolean parenthesstmt(){
-    	boolean parenthesstmt = false;
-    	if(NextLexGetter() == LexGrammar.PARENTHESIS_OP){
-    		if(stmt()){
-    			if(NextLexGetter() == LexGrammar.PARENTHESIS_CL){
-    				parenthesstmt = true;
-    			}
-    		}
-    	}
-    	return parenthesstmt;
-    }
+	//VAL-----------------------------------------------------
+	private boolean val() {
+		boolean val = false;
+
+		if (NextLexGetter() == LexGrammar.VAR) {
+			val = true;
+		}
+
+		else back();
+
+		if (NextLexGetter() == LexGrammar.NUMBER) {
+			val = true;
+		}
+
+		else back();
+
+		if (parenthesstmt()){
+			val = true;
+		}
+		else back();
+
+		return val;
+	}
+//--------------------------------------------------------
+
+	//OP(+-*/)------------------------------------------------
+	private boolean OP() {
+		boolean OP = false;
+
+		if (NextLexGetter() == LexGrammar.OP_PLUS) {
+			//	stack.push("+");
+			if (val()) {
+				OP = true;
+			}
+			else back();
+		}
+		else back();
+
+		if (NextLexGetter() == LexGrammar.OP_MINUS) {
+			//		stack.push("-");
+			if (val()) {
+				OP = true;
+			}
+			else back();
+		}
+		else back();
+
+		if (NextLexGetter() == LexGrammar.OP_MUL) {
+			//	stack.push("*");
+			if (val()) {
+				OP = true;
+			}
+			else back();
+		}
+		else back();
+
+		if (NextLexGetter() == LexGrammar.OP_DIV) {
+			//	stack.push("/");
+			if (val()) {
+				OP = true;
+			}
+			else back();
+		}
+		else back();
+		return OP;
+	}
+//--------------------------------------------------------
+
+	//PARENTHESIS(INFINITE MODULE)----------------------------
+	private boolean parenthesstmt(){
+		boolean parenthesstmt = false;
+		if(NextLexGetter() == LexGrammar.PARENTHESIS_OP){
+			if(stmt()){
+				if(NextLexGetter() == LexGrammar.PARENTHESIS_CL){
+					parenthesstmt = true;
+				}
+			}
+		}
+		return parenthesstmt;
+	}
 //--------------------------------------------------------
 
 //========================================================
-      
 
-    
+
+
 //IF MODULE=============================================== THAT'S FOR THE IF STMT
 
-//LOG_EXPR------------------------------------------------
+	//LOG_EXPR------------------------------------------------
 	private boolean log_expr(){
 		boolean log_expr = false;
 		if(NextLexGetter() == LexGrammar.PARENTHESIS_OP){
@@ -259,15 +270,15 @@ public class Parser {
 				if(LOG_OP()){
 					if(NextLexGetter() == LexGrammar.PARENTHESIS_CL){
 						log_expr = true;
-					}	
+					}
 				}
 			}
 		}
 		return log_expr;
 	}
-//--------------------------------------------------------	
+//--------------------------------------------------------
 
-//LOG_OP--------------------------------------------------
+	//LOG_OP--------------------------------------------------
 	private boolean LOG_OP(){
 		boolean LOG_OP = false;
 		if(NextLexGetter() == LexGrammar.COMPARE_EQUALS){
@@ -276,28 +287,28 @@ public class Parser {
 			}
 		}
 		else back();
-		
+
 		if(NextLexGetter() == LexGrammar.COMPARE_MORE){
 			if(val()){
 				LOG_OP = true;
 			}
 		}
 		else back();
-		
+
 		if(NextLexGetter() == LexGrammar.COMPARE_LESS){
 			if(val()){
-				LOG_OP = true;	
+				LOG_OP = true;
 			}
 		}
 		else back();
-		
+
 		if(NextLexGetter() == LexGrammar.COMPARE_LESS_EQ){
 			if(val()){
 				LOG_OP = true;
 			}
 		}
 		else back();
-		
+
 		if(NextLexGetter() == LexGrammar.COMPARE_MORE_EQ){
 			if(val()){
 				LOG_OP = true;
@@ -309,25 +320,26 @@ public class Parser {
 			if(val()){
 				LOG_OP = true;
 			}
-		}	
+		}
 		else back();
-		
-		
+
+
 		return LOG_OP;
 	}
-//--------------------------------------------------------	
-	
+//--------------------------------------------------------
+
 //BODY----------------------------------------------------
-	
+
 	private boolean body(){
 		boolean body = false;
-			if(NextLexGetter() == LexGrammar.START_W){
+		if(NextLexGetter() == LexGrammar.START_W){
+			while (NextLexGetter() != LexGrammar.END_W){
+				back();
 				if(expr()){
-					if(NextLexGetter() == LexGrammar.END_W){
-						body = true;
-					}
+					body = true;
 				}
 			}
+		}
 		return body;
 	}
 //--------------------------------------------------------
@@ -335,29 +347,29 @@ public class Parser {
 //========================================================
 
 
-	
+
 //FOR MODULE============================================== THAT'S FOR THE FOR CYCLE
 
-//LOG EXPR FOR--------------------------------------------
+	//LOG EXPR FOR--------------------------------------------
 	private boolean log_expr_for(){
 		boolean log_expr_for = false;
 		if(NextLexGetter() == LexGrammar.VAR){
 			if(LOG_OP()){
-				if(NextLexGetter() == LexGrammar.SEMICOLON){
+				if(NextLexGetter() == LexGrammar.DIV){
 					log_expr_for = true;
-				}	
-			}		
+				}
+			}
 		}
-		return log_expr_for;	
+		return log_expr_for;
 	}
 //---------------------------------------------------------
-	
-//FOR BODY-------------------------------------------------
+
+	//FOR BODY-------------------------------------------------
 	private boolean for_body(){
 		boolean for_body = false;
 		if(NextLexGetter() == LexGrammar.PARENTHESIS_OP){
 			if(assign_op()){
-				if(NextLexGetter() == LexGrammar.SEMICOLON){
+				if(NextLexGetter() == LexGrammar.DIV){
 					if(log_expr_for()){
 						if (assign_op()){
 							if(NextLexGetter() == LexGrammar.PARENTHESIS_CL){
@@ -371,334 +383,33 @@ public class Parser {
 		return for_body;
 	}
 //--------------------------------------------------------
-	
-//========================================================
-	
 
-	
+//========================================================
+
+
+
 //POS DECREMENTOR AND TOKEN_POS RETURN==================== IT LOOKS AT THE CODE AND IF THE TOKEN MATCHES WITH THE LEXEME THEN IT IT'S OK
 
-//BACK---------------------------------------------------- WE HAVE TO GO BACK ON 1 POS IF DIDN'T FIND THE  
+	//BACK---------------------------------------------------- WE HAVE TO GO BACK ON 1 POS IF DIDN'T FIND THE
 	private void back(){
-        pos--;
-    }
+		pos--;
+	}
 //-------------------------------------------------------- NEEDED THING
 
-//NEXTLEXGETTER-------------------------------------------
+	//NEXTLEXGETTER-------------------------------------------
 	private LexGrammar NextLexGetter(){
-        try {
-            return tokens.get(pos++).getLex();
+		try {
+			return tokens.get(pos++).getLex();
 
-        } catch (IndexOutOfBoundsException ex){
-        	System.err.println("Error: Lexeme \"" + LexGrammar.SEMICOLON + "\" expected");
-            System.exit(-1);
-        }
+		} catch (IndexOutOfBoundsException ex){
+			System.err.println("Error: Lexeme \"" + LexGrammar.SEMICOLON + "\" expected");
+			System.exit(-1);
+		}
 		return null;
-    }
+	}
 //--------------------------------------------------------
 
 
 //========================================================
-	
-//REVERSE POLISH NOTATION---------------------------------
-//--------------------------------------------------------
-/*Надоело по-английски писать :D В общем, логика такова, что мы создаём лист, в котором будет полиз, 
-и лист связанный с очередью, чекаем его на ключевые слова: если их нет, то используется обычный полиз (PolizExpr),
-иначе в зависимости от ключевого слова используется метод, работающий специально под тот или иной полиз.
-На вход подаётся код, написанный в файле test.txt. Код разбивается на токены и проверяется в парсере, после этого идёт лишь
-разрешение на работу полиза. При циклах используются переходы по лжи <number> !F и безусловные переходы <number> !. При
-обычном полизе выражение обращается в польскую инверсную запись (как ни странно, в полиз :D). В стек помещаются знаки бинарных
-операций.
-Пример работы полиза:
-Вход: A = A+3*(2+4*(3+2/1));
-Выход: A, A, 3, 2, 4, 3, 2, 1, /, +, *, +, *, +, = 
-Вход: WHILE(A>Q) START Q = Z+1; END IF(X>C)START D = 6; END FOR ( A=5;B<4;C=C+1) START D = 5; END
-Выход: A, Q, >, 12, !F, Q, Z, 1, +, =, 0, !, X, C, >, 20, !F, D, 6, =, A, 5, =, B, 4, <, C, C, 1, +, =, 38, !F, D, 5, =, 20, ! */
-private static LinkedList<Token> poliz = new LinkedList<>();
 
-    public static LinkedList<Token> Poliz(Queue<Token> input) {
-
-        while (!input.isEmpty()) {
-        	
-            Token token = input.peek();
-
-			if (token.type != LexGrammar.WHILE_W){
-                PolizExpr(input);
-            }
-         
-            else if(token.type == LexGrammar.WHILE_W){
-            	PolizWhile(input);
-            }
-			if(token.type != LexGrammar.IF_W){
-				PolizExpr(input);
-			}
-			else if(token.type == LexGrammar.IF_W){
-				PolizIf(input);
-			}
-			if(token.type != LexGrammar.FOR_W){
-				PolizExpr(input);
-			}
-			else if(token.type == LexGrammar.FOR_W){
-				PolizFor(input);
-			}
-            
-        }
-        int i = -1;
-        for(Token t: poliz){
-        	i++;
-        	System.out.println(i+ " " + t);
-        }
-		
-        System.out.println("Your poliz is:");
-        return poliz;
-    }
-
-    private static void PolizFor(Queue<Token> input) {
-    	
-        Queue<Token> boolExpr = new LinkedList<>();
-        input.poll();
-        Token token = input.poll();
-        int index = poliz.size();
-        while (token.type != LexGrammar.START_W) {
-            boolExpr.add(token);
-            token = input.poll();
-        }
-        PolizExpr(boolExpr);
-        poliz.add(new Token(LexGrammar.GOTO_POS, Integer.toString(p2(poliz.size()+3, input))));
-        poliz.add(new Token(LexGrammar.GOTO, "!F"));
-
-        Queue<Token> expr = new LinkedList<>();
-        token = input.poll();
-        while (token.type != LexGrammar.END_W) {
-            if (token.type == LexGrammar.FOR_W) {
-                PolizExpr(expr);
-                PolizFor(input);
-            }
-            if (token.type != LexGrammar.FOR_W)
-                expr.add(token);
-            token = input.poll();
-        }
-        PolizExpr(expr);
-        poliz.add(new Token(LexGrammar.GOTO_POS , Integer.toString(index+3)));
-        poliz.add(new Token(LexGrammar.GOTO, "!"));
-
-    }
-    
-    private static void PolizWhile(Queue<Token> input) {
-        Queue<Token> boolExpr = new LinkedList<>();
-        input.poll();
-        Token token = input.poll();
-        int index = poliz.size();
-        while (token.type != LexGrammar.START_W) {
-            boolExpr.add(token);
-            token = input.poll();
-        }
-
-        PolizExpr(boolExpr);
-        poliz.add(new Token(LexGrammar.GOTO_POS, Integer.toString(p(poliz.size()+3, input))));
-        poliz.add(new Token(LexGrammar.GOTO, "!F"));
-
-        Queue<Token> expr = new LinkedList<>();
-        token = input.poll();
-        while (token.type != LexGrammar.END_W) {
-            if (token.type == LexGrammar.WHILE_W) {
-                PolizExpr(expr);
-                PolizWhile(input);
-            }
-            if (token.type != LexGrammar.WHILE_W)
-                expr.add(token);
-            token = input.poll();
-        }
-        PolizExpr(expr);
-
-        poliz.add(new Token(LexGrammar.GOTO_POS, Integer.toString(index)));
-        poliz.add(new Token(LexGrammar.GOTO, "!"));
-    }
-    private static void PolizIf(Queue<Token> input) {
-        Queue<Token> boolExpr = new LinkedList<>();
-        input.poll();
-        Token token = input.poll();
-        //int index = poliz.size();
-        while (token.type != LexGrammar.START_W) {
-            boolExpr.add(token);
-            token = input.poll();
-        }
-        PolizExpr(boolExpr);
-        
-        poliz.add(new Token(LexGrammar.GOTO_POS, Integer.toString(p1(poliz.size()+1, input))));
-       
-        poliz.add(new Token(LexGrammar.GOTO, "!F"));
-        Queue<Token> expr = new LinkedList<>();
-        token = input.poll();
-        while (token.type != LexGrammar.END_W) {
-            if (token.type == LexGrammar.IF_W) {
-                PolizExpr(expr);
-                PolizIf(input);
-            }
-            if (token.type != LexGrammar.IF_W)
-                expr.add(token);
-            token = input.poll();
-        }
-        PolizExpr(expr);
-    }
-    
-    private static void PolizExpr(Queue<Token> input) {
-        Stack<Token> stack = new Stack<>();
-
-        while (!input.isEmpty()) {
-            Token token = input.peek();
-
-            if ((token.type == LexGrammar.WHILE_W)||(token.type == LexGrammar.IF_W)||(token.type == LexGrammar.FOR_W)) {
-                break;
-            }
-
-            token = input.poll();
-            	
-            if ((token.type == LexGrammar.VAR || token.type == LexGrammar.NUMBER)) {
-                poliz.add(token);
-            }
-            
-            if (token.type == LexGrammar.OP_MUL ||
-            	token.type == LexGrammar.OP_DIV ||
-            	token.type == LexGrammar.OP_PLUS ||
-            	token.type == LexGrammar.OP_MINUS ||
-            	token.type == LexGrammar.COMPARE_EQUALS ||
-            	token.type == LexGrammar.COMPARE_MORE ||
-            	token.type == LexGrammar.COMPARE_MORE_EQ ||
-            	token.type == LexGrammar.COMPARE_LESS ||
-            	token.type == LexGrammar.COMPARE_LESS_EQ ||
-            	token.type == LexGrammar.COMPARE_NON_EQUALS ||
-            	token.type == LexGrammar.ASSIGN_OP){ 
-                if (!stack.empty()) {
-                   while (getPriority(token.value) < getPriority(stack.peek().value)) {
-                        poliz.add(stack.pop());
-                    }
-                }
-                stack.push(token);
-                System.out.println(stack);
-            }
-
-            if (token.type == LexGrammar.PARENTHESIS_OP) {
-                stack.push(token);
-            }
-
-            if (token.type == LexGrammar.PARENTHESIS_CL) {
-                if (!stack.empty()) {
-                    while (!stack.empty() && stack.peek().type != LexGrammar.PARENTHESIS_OP) {
-                        poliz.add(stack.pop());
-                    }
-                    if (!stack.empty() && stack.peek().type == LexGrammar.PARENTHESIS_OP) {
-                        stack.pop();
-                    }
-                }
-            }
-
-            if ((token.type == LexGrammar.SEMICOLON)) {
-                if (!stack.empty()) {
-                    poliz.add(stack.pop());
-                }
-               //  poliz.add(new Token(LexGrammar.SEMICOLON, "EOF"));
-            }
-        }
-        while (!stack.empty()) {
-            poliz.add(stack.pop());
-        }
-    }
-    private static int p(int size, Queue<Token> tokens) {
-        int p = size;
-        int i = 1;
-
-        Queue<Token> tokens1 = new LinkedList<>(tokens);
-        Token token1 = tokens1.poll();
-
-        while (i > 0){
-            if (token1.type == LexGrammar.WHILE_W) {
-                i++;
-                p--;
-            }
-            if(token1.type == LexGrammar.SPACE){
-            	p--;
-            }
-            if (token1.type == LexGrammar.SEMICOLON) {
-                i--;
-            }
-            token1 = tokens1.poll();
-            if (token1.type != LexGrammar.PARENTHESIS_OP) {
-                p++;
-            }
-            if (token1.type == LexGrammar.PARENTHESIS_OP) {
-                p--;
-            }
-        }
-        return p;
-    }
-    
-    private static int p1(int size1, Queue<Token> tokens) {
-        int p1 = size1;
-        int i = 1;
-
-        Queue<Token> tokens1 = new LinkedList<>(tokens);
-        Token token1 = tokens1.poll();
-
-        while (i > 0){
-        	if (token1.type == LexGrammar.IF_W){ 	
-            	i++;
-            	p1--;
-            }
-            if(token1.type == LexGrammar.SPACE){
-            	p1--;
-            }
-            if (token1.type == LexGrammar.SEMICOLON) {
-                i--;
-            }
-            token1 = tokens1.poll();
-            if (token1.type != LexGrammar.PARENTHESIS_OP) {
-                p1++;
-            }
-            if (token1.type == LexGrammar.PARENTHESIS_OP) {
-                p1--;
-            }
-        }
-        return p1;
-    }
-    private static int p2(int size, Queue<Token> tokens) {
-        int p2 = size;
-        int i = 1;
-
-        Queue<Token> tokens1 = new LinkedList<>(tokens);
-        Token token1 = tokens1.peek();
-
-        while (i > 0){
-        	if (token1.type == LexGrammar.FOR_W){ 	
-            	i++;
-            	p2--;
-            }
-        	if(token1.type == LexGrammar.SPACE){
-            	p2--;
-            }
-            if (token1.type == LexGrammar.SEMICOLON) {
-            	i--;
-            }
-            token1 = tokens1.poll();
-            if (token1.type != LexGrammar.PARENTHESIS_OP) {
-                p2++;
-                
-            }
-            if (token1.type == LexGrammar.PARENTHESIS_OP) {
-                p2--;
-            }
-        }
-        return p2;
-    }
-
-    private static int getPriority(String bin_op) {
-         if (bin_op.equals("*") || bin_op.equals("/"))
-            return 3;
-        else if (bin_op.equals("+") || bin_op.equals("-"))
-            return 2;
-        else if (bin_op.equals(">") || bin_op.equals(">=") || bin_op.equals("<") || bin_op.equals("<=") || bin_op.equals("==") || bin_op.equals("<>"))
-            return 1;
-        else
-            return 0;
-    }
 }
