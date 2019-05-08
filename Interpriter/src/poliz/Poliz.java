@@ -228,23 +228,6 @@ public class Poliz {
             }
         }
 
-
-
-    //private static int p(int size, Queue<Token> tokens) {
-     //   int p = poliz.size();
-    //    Queue<Token> tokens1 = new LinkedList<>(tokens);
-     //   Token token1 = tokens1.poll();
-      //  while ((token1.type != LexGrammar.END_W)) {
-      //      if ((token1.type != LexGrammar.SPACE) & (token1.type != LexGrammar.SEMICOLON) & (token1.type != LexGrammar.DIV) & (token1.type != LexGrammar.PARENTHESIS_CL) & (token1.type != LexGrammar.PARENTHESIS_OP)
-      //              & (token1.type != LexGrammar.START_W) & (token1.type != LexGrammar.END_W) & (token1.type != LexGrammar.FOR_W) & (token1.type != LexGrammar.WHILE_W)) {
-      //          p++;
-     //       }
-     //       token1 = tokens1.poll();
-     //   }
-//
-     //   return p;
-   // }
-
     private static int getPriority(String bin_op) {
         switch (bin_op) {
             case "*":
