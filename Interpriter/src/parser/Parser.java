@@ -90,15 +90,11 @@ public class Parser {
 			if(log_expr()){
 				if(body()){
 					if(else_expr()){
-						if(body()){
-							if_expr =  true;
-						}
-					}else{back(); if_expr = true;}
-
+						if_expr = true;
+					}else if(!else_expr()) {if_expr = true;}
 				}
 			}
-		}
-		//else back();
+			}
 		return if_expr;
 	}
 
@@ -106,9 +102,12 @@ public class Parser {
 		boolean else_expr = false;
 		if(tokens.size() != pos){
 		if(NextLexGetter() == LexGrammar.ELSE_W){
+			if(body()) {
 				else_expr = true;
 			}
-		}
+		}  else back();
+
+		}//else back();
 		return else_expr;
 	}
 //--------------------------------------------------------
