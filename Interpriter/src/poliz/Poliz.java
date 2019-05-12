@@ -38,7 +38,7 @@ public class Poliz {
             else if(token.type == LexGrammar.ELSE_W){
                 PolizELSE(input);
             }
-             else PolizExpr(input);
+            else PolizExpr(input);
         }
         int i = -1;
         for (Token t : poliz) {
@@ -96,12 +96,14 @@ public class Poliz {
         PolizCycle(input);
         if(token.type == LexGrammar.ELSE_W)
             PolizELSE(input);
-            int end = poliz.size();
-            System.out.println(end);
-            poliz.get(index + 3).setValue(String.valueOf(end+2));
+        int end = poliz.size();
+        System.out.println(end);
+        poliz.get(index + 3).setValue(String.valueOf(end));
 
     }
     private static void PolizELSE(Queue<Token> input) {
+        int index = poliz.size();
+        poliz.get(index-7).setValue(String.valueOf(index+2));
         int end = poliz.size();
         int i = 0;
         System.out.println(i);
@@ -126,9 +128,9 @@ public class Poliz {
                 PolizExpr(ExprCycle);
                 PolizELSE(input);
             }
-           else if ((token.type == LexGrammar.WHILE_W)) {
-                    PolizExpr(ExprCycle);
-                    PolizWhile(input);
+            else if ((token.type == LexGrammar.WHILE_W)) {
+                PolizExpr(ExprCycle);
+                PolizWhile(input);
             }
 
             else if ((token.type == LexGrammar.FOR_W)) {
@@ -151,82 +153,82 @@ public class Poliz {
     private static void PolizExpr(Queue<Token> input) {
         Stack<Token> stack = new Stack<>();
         Token token = input.peek();
-            while (!input.isEmpty()) {
-                if (token.type == LexGrammar.FOR_W) {
-                    PolizFor(input);
-                }
-                if (token.type == LexGrammar.IF_W){
-                    PolizIF(input);
-                }
-                if (token.type == LexGrammar.ELSE_W){
-                    PolizELSE(input);
-                }
+        while (!input.isEmpty()) {
+            if (token.type == LexGrammar.FOR_W) {
+                PolizFor(input);
+            }
+            if (token.type == LexGrammar.IF_W){
+                PolizIF(input);
+            }
+            if (token.type == LexGrammar.ELSE_W){
+                PolizELSE(input);
+            }
 
-                if (token.type == LexGrammar.WHILE_W) {
-                    PolizWhile(input);
-                }
+            if (token.type == LexGrammar.WHILE_W) {
+                PolizWhile(input);
+            }
 
 
-                if ((token.type == LexGrammar.WHILE_W) || (token.type == LexGrammar.IF_W) || (token.type == LexGrammar.FOR_W) || (token.type == LexGrammar.ELSE_W)) {
-                    break;
-                }
+            if ((token.type == LexGrammar.WHILE_W) || (token.type == LexGrammar.IF_W) || (token.type == LexGrammar.FOR_W) || (token.type == LexGrammar.ELSE_W)) {
+                break;
+            }
 
-                token = input.poll();
-                if ((token.type == LexGrammar.VAR || token.type == LexGrammar.NUMBER)) {
-                    poliz.add(token);
-                }
+            token = input.poll();
+            if ((token.type == LexGrammar.VAR || token.type == LexGrammar.NUMBER)) {
+                poliz.add(token);
+            }
 
-                if (token.type == LexGrammar.OP_MUL ||
-                        token.type == LexGrammar.OP_DIV ||
-                        token.type == LexGrammar.OP_PLUS ||
-                        token.type == LexGrammar.OP_MINUS ||
-                        token.type == LexGrammar.COMPARE_EQUALS ||
-                        token.type == LexGrammar.COMPARE_MORE ||
-                        token.type == LexGrammar.COMPARE_MORE_EQ ||
-                        token.type == LexGrammar.COMPARE_LESS ||
-                        token.type == LexGrammar.COMPARE_LESS_EQ ||
-                        token.type == LexGrammar.COMPARE_NON_EQUALS ||
-                        token.type == LexGrammar.ASSIGN_OP) {
-                    if (!stack.empty()) {
-                        while (getPriority(token.value) < getPriority(stack.peek().value)) {
-                            poliz.add(stack.pop());
-                        }
-                    }
-                    stack.push(token);
-
-                }
-
-                if (token.type == LexGrammar.PARENTHESIS_OP) {
-                    stack.push(token);
-                }
-
-                if (token.type == LexGrammar.PARENTHESIS_CL) {
-                    if (!stack.empty()) {
-                        while (!stack.empty() && stack.peek().type != LexGrammar.PARENTHESIS_OP) {
-                            poliz.add(stack.pop());
-                        }
-                        if (!stack.empty() && stack.peek().type == LexGrammar.PARENTHESIS_OP) {
-                            stack.pop();
-                        }
-                    }
-                }
-
-                if ((token.type == LexGrammar.SEMICOLON)) {
-                    while (!stack.empty()) {
+            if (token.type == LexGrammar.OP_MUL ||
+                    token.type == LexGrammar.OP_DIV ||
+                    token.type == LexGrammar.OP_PLUS ||
+                    token.type == LexGrammar.OP_MINUS ||
+                    token.type == LexGrammar.COMPARE_EQUALS ||
+                    token.type == LexGrammar.COMPARE_MORE ||
+                    token.type == LexGrammar.COMPARE_MORE_EQ ||
+                    token.type == LexGrammar.COMPARE_LESS ||
+                    token.type == LexGrammar.COMPARE_LESS_EQ ||
+                    token.type == LexGrammar.COMPARE_NON_EQUALS ||
+                    token.type == LexGrammar.ASSIGN_OP) {
+                if (!stack.empty()) {
+                    while (getPriority(token.value) < getPriority(stack.peek().value)) {
                         poliz.add(stack.pop());
                     }
                 }
-                if ((token.type == LexGrammar.DIV)) {
-                    if (!stack.empty()) {
+                stack.push(token);
+
+            }
+
+            if (token.type == LexGrammar.PARENTHESIS_OP) {
+                stack.push(token);
+            }
+
+            if (token.type == LexGrammar.PARENTHESIS_CL) {
+                if (!stack.empty()) {
+                    while (!stack.empty() && stack.peek().type != LexGrammar.PARENTHESIS_OP) {
                         poliz.add(stack.pop());
+                    }
+                    if (!stack.empty() && stack.peek().type == LexGrammar.PARENTHESIS_OP) {
+                        stack.pop();
                     }
                 }
             }
 
-            while (!stack.empty()) {
-                poliz.add(stack.pop());
+            if ((token.type == LexGrammar.SEMICOLON)) {
+                while (!stack.empty()) {
+                    poliz.add(stack.pop());
+                }
+            }
+            if ((token.type == LexGrammar.DIV)) {
+                if (!stack.empty()) {
+                    poliz.add(stack.pop());
+                }
             }
         }
+
+        while (!stack.empty()) {
+            poliz.add(stack.pop());
+        }
+    }
 
     private static int getPriority(String bin_op) {
         switch (bin_op) {
