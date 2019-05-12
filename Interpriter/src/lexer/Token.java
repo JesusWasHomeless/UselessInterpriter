@@ -16,6 +16,10 @@ public class Token {
 	}
 	
 	public String toString(){
-		return value.toString();
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
 	}
 }
