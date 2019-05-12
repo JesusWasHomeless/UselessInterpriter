@@ -23,7 +23,7 @@ public class Poliz {
 Вход: WHILE(A>Q) START Q = Z+1; END IF(X>C)START D = 6; END FOR ( A=5;B<4;C=C+1) START D = 5; END
 Выход: A, Q, >, 12, !F, Q, Z, 1, +, =, 0, !, X, C, >, 20, !F, D, 6, =, A, 5, =, B, 4, <, C, C, 1, +, =, 38, !F, D, 5, =, 20, ! */
     private static LinkedList<Token> poliz = new LinkedList<>();
-
+    static int j;
     public static void Poliz(Queue<Token> input) {
         Token token = input.peek();
         while (!input.isEmpty()) {
@@ -35,7 +35,7 @@ public class Poliz {
 
             if (token.type == LexGrammar.IF_W){
                 PolizIF(input);}
-            else if(token.type == LexGrammar.ELSE_W){
+            if(token.type == LexGrammar.ELSE_W){
                 PolizELSE(input);
             }
             else PolizExpr(input);
@@ -81,6 +81,8 @@ public class Poliz {
         JUMP(index);
     }
     private static void PolizIF(Queue<Token> input) {
+        j = poliz.size();
+        System.out.println(j);
         Queue<Token> boolExprIF = new LinkedList<>();
         input.poll();
         Token token = input.poll();
@@ -94,23 +96,19 @@ public class Poliz {
         poliz.add(new Token(LexGrammar.START_W, "START"));
         poliz.add(new Token(LexGrammar.JUMP_F, "!F"));
         PolizCycle(input);
-        if(token.type == LexGrammar.ELSE_W)
-            PolizELSE(input);
         int end = poliz.size();
         System.out.println(end);
         poliz.get(index + 3).setValue(String.valueOf(end));
 
     }
     private static void PolizELSE(Queue<Token> input) {
-        int index = poliz.size();
-        poliz.get(index-7).setValue(String.valueOf(index+2));
         int end = poliz.size();
-        int i = 0;
-        System.out.println(i);
+        int i;
         poliz.add(new Token(LexGrammar.JUMP_F, String.valueOf((end))));
         poliz.add(new Token(LexGrammar.JUMP, "!"));
         PolizCycle(input);
         i = poliz.size();
+        poliz.get(j+3).setValue(String.valueOf(end+2));
         poliz.get(end).setValue(String.valueOf(i));
     }
     private static void PolizCycle(Queue<Token> input) {
@@ -125,7 +123,7 @@ public class Poliz {
                 PolizIF(input);
             }
             else if ((token.type == LexGrammar.ELSE_W)){
-                PolizExpr(ExprCycle);
+                //PolizExpr(ExprCycle);
                 PolizELSE(input);
             }
             else if ((token.type == LexGrammar.WHILE_W)) {
